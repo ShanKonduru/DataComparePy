@@ -29,8 +29,14 @@ if __name__ == "__main__":
         data_comparator = ExcelDataComparator(source_file_path, target_file_path, sheet_name)
         
         # Compare Excel with Excel using SQL query
-        result_excel_excel = data_comparator.compare_excel_with_excel(src_query, dest_query)
+        merged_df, stats = data_comparator.compare_excel_with_excel(src_query, dest_query)
         
-        # Output results
-        print(f"Differences for dataset {dataset_id}:")
-        print(result_excel_excel)
+        # Generate HTML report
+        html_report = data_comparator.generate_html_report(merged_df, stats, dataset_id)
+        
+        # Save the HTML report to a file
+        report_file_path = f"./output-reports/report_{dataset_id}.html"
+        with open(report_file_path, "w") as file:
+            file.write(html_report)
+        
+        print(f"Report for dataset {dataset_id} saved to {report_file_path}")
