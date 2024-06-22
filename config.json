@@ -1,0 +1,20 @@
+{
+    "datasets": [
+        {
+            "id": "Exl2Exl#1",
+            "source_file_path": "C:/MyProjects/DataComparePy/InputFiles/EXLS/Src/SrcTest.xlsx",
+            "target_file_path": "C:/MyProjects/DataComparePy/InputFiles/EXLS/Dist/DestTest.xlsx",
+            "sheet_name": "Sheet1",
+            "src_query": "SELECT EmpID as ID, EmpName as NAME, EmpAge as AGE, EmpSex as SEX, EmpSalary as SALARY FROM df",
+            "dest_query": "SELECT Emp_ID as ID, Emp_Name as NAME, Emp_Age as AGE, Emp_Sex as SEX, Emp_Salary as SALARY FROM df"
+        },
+        {
+            "id": "Exl2Exl#2",
+            "source_file_path": "C:/MyProjects/DataComparePy/InputFiles/EXLS/Src/SrcEmpData.xlsx",
+            "target_file_path": "C:/MyProjects/DataComparePy/InputFiles/EXLS/Dist/DestEmpData.xlsx",
+            "sheet_name": "Sheet1",
+            "src_query": "SELECT EmpID as ID, EmpName as NAME, EmpAge as AGE, EmpSex as SEX, EmpSalary as SALARY FROM df",
+            "dest_query": "SELECT Emp_ID as ID, Emp_Name as NAME, Emp_Age as AGE, Emp_Sex as SEX, Emp_Salary as SALARY FROM df"
+        }
+    ]
+}

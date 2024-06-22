@@ -1,24 +1,59 @@
 import pandas as pd
 from pandasql import sqldf
-from ExcelFile import ExcelFile
-import ExcelDataComparator
+from ConfigLoader import ConfigLoader
+from ExcelDataComparator import ExcelDataComparator
 
-# Example usage:
 if __name__ == "__main__":
-    # source_file_path = r'C:/MyProjects/DataComparePy/InputFiles/CSV/Src/SrcEmpData.xlsx'
-    # target_file_path = r'C:/MyProjects/DataComparePy/InputFiles/CSV/Dest/DestEmpData.xlsx'
-    source_file_path = r'C:/MyProjects/DataComparePy/InputFiles/CSV/Src/SrcTest.xlsx'
-    target_file_path = r'C:/MyProjects/DataComparePy/InputFiles/CSV/Dest/DestTest.xlsx'
-
-    sheet_name = 'Sheet1'  # Update with your sheet name
+    # Load configuration from JSON file
+    config_loader = ConfigLoader('config.json')
+    config = config_loader.get_config()
     
-    # SQL query to select relevant columns for comparison
-    src_query = "SELECT  EmpID as ID , EmpName as NAME, EmpAge as AGE, EmpSex as SEX, EmpSalary as SALARY  FROM df"
-    dest_query = "SELECT Emp_ID as ID , Emp_Name as NAME, Emp_Age as AGE, Emp_Sex as SEX, Emp_Salary as SALARY FROM df"
-
+    source_file_path = config["source_file_path"]
+    target_file_path = config["target_file_path"]
+    sheet_name = config["sheet_name"]
+    src_query = config["src_query"]
+    dest_query = config["dest_query"]
+    
     # Create an instance of ExcelDataComparator
-    data_comparator = ExcelDataComparator.ExcelDataComparator(source_file_path, target_file_path, sheet_name)
+    data_comparator = ExcelDataComparator(source_file_path, target_file_path, sheet_name)
     
     # Compare Excel with Excel using SQL query
     result_excel_excel = data_comparator.compare_excel_with_excel(src_query, dest_query)
     print(result_excel_excel)
+
+import pandas as pd
+from pandasql import sqldf
+from ConfigLoader import ConfigLoader
+from ExcelDataComparator import ExcelDataComparator
+
+if __name__ == "__main__":
+    # Load configuration from JSON file
+    config_loader = ConfigLoader('config.json')
+    
+    # Get all dataset names (IDs)
+    dataset_ids = config_loader.get_all_dataset_names()
+    
+    for dataset_id in dataset_ids:
+        print(f"Processing dataset: {dataset_id}")
+        try:
+            # Get the configuration for the specified dataset
+            config = config_loader.get_config_by_id(dataset_id)
+        except ValueError as e:
+            print(e)
+            continue  # Skip to the next dataset
+        
+        source_file_path = config["source_file_path"]
+        target_file_path = config["target_file_path"]
+        sheet_name = config["sheet_name"]
+        src_query = config["src_query"]
+        dest_query = config["dest_query"]
+        
+        # Create an instance of ExcelDataComparator
+        data_comparator = ExcelDataComparator(source_file_path, target_file_path, sheet_name)
+        
+        # Compare Excel with Excel using SQL query
+        result_excel_excel = data_comparator.compare_excel_with_excel(src_query, dest_query)
+        
+        # Output results
+        print(f"Differences for dataset {dataset_id}:")
+        print(result_excel_excel)
