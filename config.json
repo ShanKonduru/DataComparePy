@@ -10,7 +10,7 @@
         },
         {
             "id": "SrcDest-NewRow",
-            "source_file_path": "C:/MyProjects/DataComparePy/InputFiles/EXLS/Src/SrcEmpData.xlsx",
+            "source_file_path": "C:/MyProjects/DataComparePy/InputFiles/EXLS/Src/SrcTest.xlsx",
             "target_file_path": "C:/MyProjects/DataComparePy/InputFiles/EXLS/Dist/DestTest-NewRow.xlsx",
             "sheet_name": "Sheet1",
             "src_query": "SELECT EmpID as ID, EmpName as NAME, EmpAge as AGE, EmpSex as SEX, EmpSalary as SALARY FROM df",
@@ -18,7 +18,7 @@
         },
         {
             "id": "SrcDest-DataChange",
-            "source_file_path": "C:/MyProjects/DataComparePy/InputFiles/EXLS/Src/SrcEmpData.xlsx",
+            "source_file_path": "C:/MyProjects/DataComparePy/InputFiles/EXLS/Src/SrcTest.xlsx",
             "target_file_path": "C:/MyProjects/DataComparePy/InputFiles/EXLS/Dist/DestTest-DataChange.xlsx",
             "sheet_name": "Sheet1",
             "src_query": "SELECT EmpID as ID, EmpName as NAME, EmpAge as AGE, EmpSex as SEX, EmpSalary as SALARY FROM df",
