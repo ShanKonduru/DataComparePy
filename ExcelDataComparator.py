@@ -12,6 +12,13 @@ class ExcelDataComparator:
         """Executes SQL query on a DataFrame using pandasql."""
         return sqldf(query, locals())
     
+    def get_query_columns(self, query):
+        """Extracts column names from the SQL query."""
+        select_part = query.split('FROM')[0]
+        columns = select_part.replace('SELECT', '').split(',')
+        columns = [col.split('as')[1].strip() if 'as' in col else col.strip() for col in columns]
+        return columns
+    
     def compare_excel_with_excel(self, src_query, dest_query):
         """Compares two Excel files using SQL query and returns rows that are different."""
         try:
@@ -19,8 +26,15 @@ class ExcelDataComparator:
             source_data = self.execute_sql_query(self.source_excel.data, src_query)
             target_data = self.execute_sql_query(self.target_excel.data, dest_query)
             
-            # Compare DataFrames
-            merged_df = pd.merge(source_data, target_data, on=['ID', 'NAME', 'AGE', 'SEX', 'SALARY'], how='outer', indicator=True)
+            # Get the columns used in the SQL queries for comparison
+            src_columns = self.get_query_columns(src_query)
+            dest_columns = self.get_query_columns(dest_query)
+            
+            if set(src_columns) != set(dest_columns):
+                raise ValueError("Source and Target queries do not select the same columns")
+            
+            # Compare DataFrames using the common columns
+            merged_df = pd.merge(source_data, target_data, on=src_columns, how='outer', indicator=True)
             
             stats = {
                 "src_row_count": len(source_data),
