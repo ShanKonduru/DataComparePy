@@ -5,6 +5,7 @@ from ConfigLoader import ConfigLoader
 from ExcelDataComparator import ExcelDataComparator
 from CsvDataComparator import CSVDataComparator
 from HTMLReportGenerator import HtmlReportGenerator
+from PerformanceMetrics import PerformanceMetrics
 
 if __name__ == "__main__":
     # Load configuration from JSON file
@@ -12,9 +13,12 @@ if __name__ == "__main__":
     
     # Get all dataset names (IDs)
     dataset_ids = config_loader.get_all_dataset_names()
-    
+    metrics = PerformanceMetrics()
+
     for dataset_id in dataset_ids:
         print(f"Processing dataset: {dataset_id}")
+        metrics.start_tracking(dataset_id)
+
         try:
             # Get the configuration for the specified dataset
             config = config_loader.get_config_by_id(dataset_id)
@@ -53,3 +57,4 @@ if __name__ == "__main__":
             file.write(html_report)
         
         print(f"Report for dataset {dataset_id} saved to {report_file_path}")
+        metrics.end_tracking(dataset_id)
