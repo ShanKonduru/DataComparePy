@@ -1,8 +1,10 @@
 import pandas as pd
 from pandasql import sqldf
+from ExcelFile import ExcelFile
 from ConfigLoader import ConfigLoader
 from ExcelDataComparator import ExcelDataComparator
 from CsvDataComparator import CSVDataComparator
+from HtmlReportGenerator import HtmlReportGenerator
 
 if __name__ == "__main__":
     # Load configuration from JSON file
@@ -31,15 +33,16 @@ if __name__ == "__main__":
 
         if source_file_path.endswith('.xlsx') and target_file_path.endswith('.xlsx'):
             data_comparator = ExcelDataComparator(source_file_path, target_file_path, sheet_name)
+            # Compare Excel with Excel using SQL query
+            merged_df, stats = data_comparator.compare_excel_with_excel(src_query, dest_query)
         elif source_file_path.endswith('.csv') and target_file_path.endswith('.csv'):
             data_comparator = CSVDataComparator(source_file_path, target_file_path)
+            # Compare Excel with Excel using SQL query
+            merged_df, stats = data_comparator.compare_csv_with_csv(src_query, dest_query)
         else:
             print(f"Unsupported file types for dataset {dataset_id}")
             continue
 
-        
-        # Compare Excel with Excel using SQL query
-        merged_df, stats = data_comparator.compare_excel_with_excel(src_query, dest_query)
         
         # Generate HTML report
         html_report = data_comparator.generate_html_report(merged_df, stats, dataset_id)

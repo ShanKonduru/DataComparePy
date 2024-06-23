@@ -1,8 +1,9 @@
 import pandas as pd
 from pandasql import sqldf
 from ExcelFile import ExcelFile
-import json
-import HtmlReportGenerator
+from ConfigLoader import ConfigLoader
+from ExcelDataComparator import ExcelDataComparator
+from HtmlReportGenerator import HtmlReportGenerator
 
 class CSVDataComparator:
     def __init__(self, source_file_path, target_file_path):
