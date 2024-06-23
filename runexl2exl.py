@@ -58,3 +58,5 @@ if __name__ == "__main__":
         
         print(f"Report for dataset {dataset_id} saved to {report_file_path}")
         metrics.end_tracking(dataset_id)
+    
+    metrics.generate_html_report()
