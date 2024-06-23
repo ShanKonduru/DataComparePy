@@ -1,7 +1,7 @@
 {
     "datasets": [
         {
-            "id": "SrcDest-NoChange",
+            "id": "Excel-NoChange",
             "source_file_path": "C:/MyProjects/DataComparePy/InputFiles/EXLS/Src/SrcTest.xlsx",
             "target_file_path": "C:/MyProjects/DataComparePy/InputFiles/EXLS/Dist/DestTest-NoChange.xlsx",
             "sheet_name": "Sheet1",
@@ -9,7 +9,7 @@
             "dest_query": "SELECT Emp_ID as ID, Emp_Name as NAME, Emp_Age as AGE, Emp_Sex as SEX, Emp_Salary as SALARY FROM df"
         },
         {
-            "id": "SrcDest-NewRow",
+            "id": "Excel-NewRow",
             "source_file_path": "C:/MyProjects/DataComparePy/InputFiles/EXLS/Src/SrcTest.xlsx",
             "target_file_path": "C:/MyProjects/DataComparePy/InputFiles/EXLS/Dist/DestTest-NewRow.xlsx",
             "sheet_name": "Sheet1",
@@ -17,12 +17,21 @@
             "dest_query": "SELECT Emp_ID as ID, Emp_Name as NAME, Emp_Age as AGE, Emp_Sex as SEX, Emp_Salary as SALARY FROM df"
         },
         {
-            "id": "SrcDest-DataChange",
+            "id": "Excel-DataChange",
             "source_file_path": "C:/MyProjects/DataComparePy/InputFiles/EXLS/Src/SrcTest.xlsx",
             "target_file_path": "C:/MyProjects/DataComparePy/InputFiles/EXLS/Dist/DestTest-DataChange.xlsx",
             "sheet_name": "Sheet1",
             "src_query": "SELECT EmpID as ID, EmpName as NAME, EmpAge as AGE, EmpSex as SEX, EmpSalary as SALARY FROM df",
             "dest_query": "SELECT Emp_ID as ID, Emp_Name as NAME, Emp_Age as AGE, Emp_Sex as SEX, Emp_Salary as SALARY FROM df"
+        },
+        {
+            "id": "CSV-DataChange",
+            "source_file_path": "C:/MyProjects/DataComparePy/InputFiles/CSV/Src/SrcEmpData.csv",
+            "target_file_path": "C:/MyProjects/DataComparePy/InputFiles/CSV/Dist/DestEmpData.csv",
+            "sheet_name": "Sheet1",
+            "src_query": "SELECT EmpID as ID, EmpName as NAME, EmpAge as AGE, EmpSex as SEX, EmpSalary as SALARY FROM df",
+            "dest_query": "SELECT Emp_ID as ID, Emp_Name as NAME, Emp_Age as AGE, Emp_Sex as SEX, Emp_Salary as SALARY FROM df"
         }
+
     ]
 }

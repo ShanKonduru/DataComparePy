@@ -7,6 +7,7 @@ class ExcelDataComparator:
     def __init__(self, source_file_path, target_file_path, sheet_name):
         self.source_excel = ExcelFile(source_file_path, sheet_name)
         self.target_excel = ExcelFile(target_file_path, sheet_name)
+        self.html_report_generator = HtmlReportGenerator()
     
     def execute_sql_query(self, df, query):
         """Executes SQL query on a DataFrame using pandasql."""
@@ -36,12 +37,20 @@ class ExcelDataComparator:
             # Compare DataFrames using the common columns
             merged_df = pd.merge(source_data, target_data, on=src_columns, how='outer', indicator=True)
             
+            # Map the _merge column values
+            merge_mapping = {
+                'both': 'Exists in Source and Target',
+                'left_only': 'Exists in Source Only',
+                'right_only': 'Exists in Target Only'
+            }
+            merged_df['_merge'] = merged_df['_merge'].map(merge_mapping)
+            
             stats = {
                 "src_row_count": len(source_data),
                 "target_row_count": len(target_data),
-                "matching_records": len(merged_df[merged_df['_merge'] == 'both']),
-                "src_only_records": len(merged_df[merged_df['_merge'] == 'left_only']),
-                "target_only_records": len(merged_df[merged_df['_merge'] == 'right_only'])
+                "matching_records": len(merged_df[merged_df['_merge'] == 'Exists in Source and Target']),
+                "src_only_records": len(merged_df[merged_df['_merge'] == 'Exists in Source Only']),
+                "target_only_records": len(merged_df[merged_df['_merge'] == 'Exists in Target Only'])
             }
             
             return merged_df, stats
@@ -52,36 +61,4 @@ class ExcelDataComparator:
     
     def generate_html_report(self, merged_df, stats, dataset_id):
         """Generates an HTML report based on the comparison results and statistics."""
-        html = f"""
-        <html>
-        <head>
-            <title>Comparison Report - {dataset_id}</title>
-            <style>
-                body {{ font-family: Arial, sans-serif; }}
-                table {{ border-collapse: collapse; width: 100%; }}
-                th, td {{ border: 1px solid black; padding: 8px; text-align: left; }}
-                th {{ background-color: #f2f2f2; }}
-                .header {{ font-size: 24px; margin-bottom: 20px; }}
-                .section {{ margin-top: 20px; }}
-            </style>
-        </head>
-        <body>
-            <div class="header">Comparison Report - {dataset_id}</div>
-            <div class="section">
-                <h2>Summary</h2>
-                <table>
-                    <tr><th>Source File Rows</th><td>{stats['src_row_count']}</td></tr>
-                    <tr><th>Target File Rows</th><td>{stats['target_row_count']}</td></tr>
-                    <tr><th>Matching Records</th><td>{stats['matching_records']}</td></tr>
-                    <tr><th>Source Only Records</th><td>{stats['src_only_records']}</td></tr>
-                    <tr><th>Target Only Records</th><td>{stats['target_only_records']}</td></tr>
-                </table>
-            </div>
-            <div class="section">
-                <h2>Detailed Differences</h2>
-                {merged_df.to_html(index=False)}
-            </div>
-        </body>
-        </html>
-        """
-        return html
+        return self.html_report_generator.generate_html_report(merged_df, stats, dataset_id)

@@ -1,24 +1,36 @@
-import pandas as pd
-from CsvFile import CsvFile  
-from CsvDataComparator import CsvDataComparator
+import ConfigLoader
+import ExcelDataComparator
+from CsvDataComparator import CSVDataComparator
 
-# Example usage:
+import json
+
+
+# Example usage
 if __name__ == "__main__":
-    source_file_path = r'C:/MyProjects/DataComparePy/InputFiles/CSV/Src/SrcEmpData.csv'
-    target_file_path = r'C:/MyProjects/DataComparePy/InputFiles/CSV/Dest/DestEmpData.csv'
+    config_loader = ConfigLoader('config.json')
+    datasets = config_loader.get_datasets()
     
-    # Column mapping between CSV - Source and Target 
-    column_mapping = {
-        "EmpID": "Emp_ID",  # Adjusted mapping to match actual column names
-        "EmpName": "Emp_Name",
-        "EmpAge": "Emp_Age",
-        "EmpSex": "Emp_Sex",
-        "EmpSalary": "Emp_Salary"
-    }
-    
-    # Create an instance of DataComparator
-    data_comparator = CsvDataComparator(source_file_path, target_file_path, column_mapping)
-    
-    # Compare CSV with CSV
-    result_csv_csv = data_comparator.compare_csv_with_csv()
-    print(result_csv_csv)
+    for dataset in datasets:
+        dataset_id = dataset['id']
+        source_file_path = dataset['source_file_path']
+        target_file_path = dataset['target_file_path']
+        sheet_name = dataset['sheet_name']
+        src_query = dataset['src_query']
+        dest_query = dataset['dest_query']
+        
+        if source_file_path.endswith('.xlsx') and target_file_path.endswith('.xlsx'):
+            comparator = ExcelDataComparator(source_file_path, target_file_path, sheet_name)
+        elif source_file_path.endswith('.csv') and target_file_path.endswith('.csv'):
+            comparator = CSVDataComparator(source_file_path, target_file_path)
+        else:
+            print(f"Unsupported file types for dataset {dataset_id}")
+            continue
+        
+        merged_df, stats = comparator.compare_excel_with_excel(src_query, dest_query)
+        html_report = comparator.generate_html_report(merged_df, stats, dataset_id)
+        
+        # Save the HTML report
+        report_file = f'report_{dataset_id}.html'
+        with open(report_file, 'w') as f:
+            f.write(html_report)
+        print(f"Report generated for {dataset_id}: {report_file}")

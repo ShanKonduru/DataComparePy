@@ -1,69 +1,65 @@
 import pandas as pd
-from CsvFile import CsvFile
+from pandasql import sqldf
+from ExcelFile import ExcelFile
+import json
+import HtmlReportGenerator
 
-class CsvDataComparator:
-    def __init__(self, source_file_path, target_file_path, column_mapping):
-        self.source_csv = CsvFile(source_file_path)
-        self.target_csv = CsvFile(target_file_path)
-        self.column_mapping = column_mapping
+class CSVDataComparator:
+    def __init__(self, source_file_path, target_file_path):
+        self.source_csv = pd.read_csv(source_file_path)
+        self.target_csv = pd.read_csv(target_file_path)
+        self.html_report_generator = HtmlReportGenerator()
     
-    def map_columns(self, df, column_mapping):
-        """Maps columns of a DataFrame based on the given column mapping dictionary."""
-        mapped_columns = {}
-        for source_col, target_col in column_mapping.items():
-            if source_col in df.columns:
-                mapped_columns[target_col] = df[source_col]
-            else:
-                mapped_columns[target_col] = pd.Series(dtype=str)  # Create empty Series if column not found
-        return pd.DataFrame(mapped_columns)
+    def execute_sql_query(self, df, query):
+        """Executes SQL query on a DataFrame using pandasql."""
+        return sqldf(query, locals())
     
-    def compare_dataframes(self, df1, df2, on_columns):
-        """Compares two pandas DataFrames and returns the rows that are different."""
-        try:
-            # Ensure all columns in on_columns exist in both DataFrames
-            for col in on_columns:
-                if col not in df1.columns:
-                    df1[col] = pd.Series(dtype=str)  # Add empty series if column not found
-                if col not in df2.columns:
-                    df2[col] = pd.Series(dtype=str)  # Add empty series if column not found
-            
-            # Merge DataFrames
-            merged_df = pd.merge(df1, df2, on=on_columns, how='outer', suffixes=('_src', '_tgt'), indicator=True)
-            
-            # Filter rows where the indicator column (_merge) is not 'both'
-            diff_rows = merged_df[merged_df['_merge'] != 'both'].drop(columns=['_merge'])
-            
-            # Filter rows where all mapped columns have identical values
-            diff_rows_filtered = diff_rows[
-                ~diff_rows.apply(lambda row: all(row[f'{col}_src'] == row[f'{col}_tgt'] for col in on_columns), axis=1)
-            ]
-            
-            return diff_rows_filtered
-        
-        except KeyError as e:
-            print(f"Error during merge operation: {e}")
-            return pd.DataFrame()  # Return an empty DataFrame or handle error as appropriate
+    def get_query_columns(self, query):
+        """Extracts column names from the SQL query."""
+        select_part = query.split('FROM')[0]
+        columns = select_part.replace('SELECT', '').split(',')
+        columns = [col.split('as')[1].strip() if 'as' in col else col.strip() for col in columns]
+        return columns
     
-    def compare_csv_with_csv(self):
-        """Compares two CSV files, considering column mapping, and returns rows that are different."""
+    def compare_csv_with_csv(self, src_query, dest_query):
+        """Compares two CSV files using SQL query and returns rows that are different."""
         try:
-            # Ensure column mapping reflects the actual column names in both DataFrames
-            source_data = self.source_csv.data
-            target_data = self.target_csv.data
+            # Execute SQL queries on source and target CSV data
+            source_data = self.execute_sql_query(self.source_csv, src_query)
+            target_data = self.execute_sql_query(self.target_csv, dest_query)
             
-            source_data_mapped = self.map_columns(source_data, self.column_mapping)
-            target_data_mapped = self.map_columns(target_data, {v: k for k, v in self.column_mapping.items()})
-        except KeyError as e:
-            print(f"Error: {e}")
-            return pd.DataFrame()  # Return an empty DataFrame or handle error appropriately
+            # Get the columns used in the SQL queries for comparison
+            src_columns = self.get_query_columns(src_query)
+            dest_columns = self.get_query_columns(dest_query)
+            
+            if set(src_columns) != set(dest_columns):
+                raise ValueError("Source and Target queries do not select the same columns")
+            
+            # Compare DataFrames using the common columns
+            merged_df = pd.merge(source_data, target_data, on=src_columns, how='outer', indicator=True)
+            
+            # Map the _merge column values
+            merge_mapping = {
+                'both': 'Exists in Source and Target',
+                'left_only': 'Exists in Source Only',
+                'right_only': 'Exists in Target Only'
+            }
+            merged_df['_merge'] = merged_df['_merge'].map(merge_mapping)
+            
+            stats = {
+                "src_row_count": len(source_data),
+                "target_row_count": len(target_data),
+                "matching_records": len(merged_df[merged_df['_merge'] == 'Exists in Source and Target']),
+                "src_only_records": len(merged_df[merged_df['_merge'] == 'Exists in Source Only']),
+                "target_only_records": len(merged_df[merged_df['_merge'] == 'Exists in Target Only'])
+            }
+            
+            return merged_df, stats
         
-        # Compare DataFrames based on mapped columns
-        on_columns = list(self.column_mapping.values())
-        
-        try:
-            result = self.compare_dataframes(source_data_mapped, target_data_mapped, on_columns)
-        except KeyError as e:
+        except Exception as e:
             print(f"Error during comparison: {e}")
-            return pd.DataFrame()  # Return an empty DataFrame or handle error appropriately
-        
-        return result
+            return pd.DataFrame(), {}  # Return an empty DataFrame and empty stats or handle error as appropriate
+    
+    def generate_html_report(self, merged_df, stats, dataset_id):
+        """Generates an HTML report based on the comparison results and statistics."""
+        return self.html_report_generator.generate_html_report(merged_df, stats, dataset_id)
