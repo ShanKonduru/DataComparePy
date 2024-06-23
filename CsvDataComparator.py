@@ -3,7 +3,7 @@ from pandasql import sqldf
 from ExcelFile import ExcelFile
 from ConfigLoader import ConfigLoader
 from ExcelDataComparator import ExcelDataComparator
-from HtmlReportGenerator import HtmlReportGenerator
+from HTMLReportGenerator import HtmlReportGenerator
 
 class CSVDataComparator:
     def __init__(self, source_file_path, target_file_path):

@@ -4,7 +4,7 @@ from ExcelFile import ExcelFile
 from ConfigLoader import ConfigLoader
 from ExcelDataComparator import ExcelDataComparator
 from CsvDataComparator import CSVDataComparator
-from HtmlReportGenerator import HtmlReportGenerator
+from HTMLReportGenerator import HtmlReportGenerator
 
 if __name__ == "__main__":
     # Load configuration from JSON file
