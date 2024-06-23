@@ -2,6 +2,7 @@ import pandas as pd
 from pandasql import sqldf
 from ConfigLoader import ConfigLoader
 from ExcelDataComparator import ExcelDataComparator
+from CsvDataComparator import CSVDataComparator
 
 if __name__ == "__main__":
     # Load configuration from JSON file
@@ -26,7 +27,16 @@ if __name__ == "__main__":
         dest_query = config["dest_query"]
         
         # Create an instance of ExcelDataComparator
-        data_comparator = ExcelDataComparator(source_file_path, target_file_path, sheet_name)
+        # data_comparator = ExcelDataComparator(source_file_path, target_file_path, sheet_name)
+
+        if source_file_path.endswith('.xlsx') and target_file_path.endswith('.xlsx'):
+            data_comparator = ExcelDataComparator(source_file_path, target_file_path, sheet_name)
+        elif source_file_path.endswith('.csv') and target_file_path.endswith('.csv'):
+            data_comparator = CSVDataComparator(source_file_path, target_file_path)
+        else:
+            print(f"Unsupported file types for dataset {dataset_id}")
+            continue
+
         
         # Compare Excel with Excel using SQL query
         merged_df, stats = data_comparator.compare_excel_with_excel(src_query, dest_query)

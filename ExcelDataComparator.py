@@ -1,13 +1,13 @@
 import pandas as pd
 from pandasql import sqldf
 from ExcelFile import ExcelFile
-import json
+import HtmlReportGenerator
 
 class ExcelDataComparator:
     def __init__(self, source_file_path, target_file_path, sheet_name):
         self.source_excel = ExcelFile(source_file_path, sheet_name)
         self.target_excel = ExcelFile(target_file_path, sheet_name)
-        self.html_report_generator = HtmlReportGenerator()
+        self.html_report_generator = HtmlReportGenerator.HtmlReportGenerator()
     
     def execute_sql_query(self, df, query):
         """Executes SQL query on a DataFrame using pandasql."""
